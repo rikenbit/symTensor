@@ -1,0 +1,20 @@
+Package: symTensor
+Type: Package
+Title: Symmetric Matrix and Tensor Decomposition
+Version: 0.1.0
+Author: Koki Tsuyuzaki
+Maintainer: Koki Tsuyuzaki <k.t.the-answer@hotmail.co.jp>
+Description: Provides symmetric matrix and tensor operations and decomposition
+    algorithms including symmetric NMF (symNMF), PageRank, Label Propagation,
+    Higher-order Power Method, and TOPHITS. Designed to work with rTensor objects.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends:
+    R (>= 3.5.0)
+Imports:
+    rTensor,
+    methods,
+    stats
+Suggests:
+    testthat
+RoxygenNote: 7.3.2
