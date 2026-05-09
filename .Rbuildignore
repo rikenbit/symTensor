@@ -1,5 +1,6 @@
 ^\.github$
 ^CLAUDE\.md$
 ^CONTRIBUTING\.md$
+^README\.md$
 ^Dockerfile$
 ^\.gitignore$
