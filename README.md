@@ -39,7 +39,7 @@ devtools::install_github("rikenbit/symTensor")
 ## Contributing
 If you have suggestions for how `symTensor` could be improved, or want to report a bug, open an issue! We'd love all and any contributions.
 
-For more details, check the [CONTRIBUTING.md](CONTRIBUTING.md).
+For more details, check the [CONTRIBUTING.md](https://github.com/rikenbit/symTensor/blob/main/CONTRIBUTING.md).
 
 ## Authors
 - Koki Tsuyuzaki
