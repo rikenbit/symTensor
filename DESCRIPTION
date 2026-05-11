@@ -6,7 +6,11 @@ Authors@R: person("Koki", "Tsuyuzaki", email = "k.t.the-answer@hotmail.co.jp",
     role = c("aut", "cre"))
 Description: Provides symmetric matrix and tensor operations and decomposition
     algorithms including symmetric NMF (symNMF), PageRank, Label Propagation,
-    Higher-order Power Method, and TOPHITS. Designed to work with rTensor objects.
+    Higher-order Power Method, and TOPHITS. Designed to work with 'rTensor'
+    objects. Methods are described in Kuang et al. (2012)
+    <doi:10.1137/1.9781611972825.10>, Kolda and Mayo (2011)
+    <doi:10.1137/100801482>, and Kolda and Bader (2006)
+    <doi:10.1137/1.9781611972764.26>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Depends:
