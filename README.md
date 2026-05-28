@@ -1,4 +1,5 @@
 [![GitHub Actions](https://github.com/rikenbit/symTensor/actions/workflows/build_test_push.yml/badge.svg)](https://github.com/rikenbit/symTensor/actions/workflows/build_test_push.yml)
+[![DOI](https://zenodo.org/badge/644395361.svg)](https://doi.org/10.5281/zenodo.20429233)
 
 # symTensor
 R package for Symmetric Matrix and Tensor Decomposition
