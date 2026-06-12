@@ -133,3 +133,105 @@ test_that("TOPHITS runs without error", {
   expect_identical(length(result$rankings), 3L)
   expect_identical(length(result$rankings[[1]]), 5L)
 })
+
+# ---- SignedPageRank ----
+
+test_that("SignedPageRank: enemy of enemy is friend", {
+  # Tumor(1) --(-)--> Treg(2) --(-)--> CD8(3) --(-)--> Tumor(1)
+  # 2-hop: Tumor->Treg->CD8 = (-)x(-) = positive for CD8 from Tumor's view
+  A_pos <- matrix(0, 3, 3)
+  A_neg <- matrix(0, 3, 3)
+  A_neg[2, 1] <- 1  # Tumor inhibits Treg
+  A_neg[3, 2] <- 1  # Treg inhibits CD8
+  A_neg[1, 3] <- 1  # CD8 inhibits Tumor
+
+  result <- SignedPageRank(A_pos, A_neg)
+  expect_identical(result$converged, TRUE)
+  # All nodes should have both positive and negative scores
+  # due to the doubled state-space
+  expect_identical(length(result$positive), 3L)
+  expect_identical(length(result$negative), 3L)
+  expect_identical(length(result$net), 3L)
+})
+
+test_that("SignedPageRank: pure positive graph matches PageRank", {
+  A <- matrix(c(0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0), 4, 4)
+  A_neg <- matrix(0, 4, 4)
+
+  pr <- PageRank(A)
+  spr <- SignedPageRank(A, A_neg)
+
+  expect_identical(spr$converged, TRUE)
+  # Negative scores should be zero (or near zero)
+  expect_lt(sum(spr$negative), 1e-8)
+  # Positive scores should approximate standard PageRank
+  expect_lt(max(abs(spr$positive / sum(spr$positive) - pr$vector)), 0.05)
+})
+
+test_that("SignedPageRank: two negative edges yield positive effect", {
+  # A(1) --(-)--> B(2) --(-)--> C(3)
+  A_pos <- matrix(0, 3, 3)
+  A_neg <- matrix(0, 3, 3)
+  A_neg[2, 1] <- 1
+  A_neg[3, 2] <- 1
+
+  result <- SignedPageRank(A_pos, A_neg)
+  expect_identical(result$converged, TRUE)
+  # Net effect on C from A's perspective should be positive
+  # Node 3 (C) should have net positive score
+  expect_gt(result$net[3], 0)
+})
+
+# ---- SignedPathContribution ----
+
+test_that("SignedPathContribution: double negative = positive", {
+  # A(1) --(-)--> B(2) --(-)--> C(3)
+  A_pos <- matrix(0, 3, 3)
+  A_neg <- matrix(0, 3, 3)
+  A_neg[2, 1] <- 1
+  A_neg[3, 2] <- 1
+
+  paths <- SignedPathContribution(A_pos, A_neg, max_hop = 2)
+
+  # Find 2-hop path 1->2->3
+  path_1_2_3 <- paths[paths$path == "1->2->3", ]
+  expect_identical(nrow(path_1_2_3), 1L)
+  expect_identical(path_1_2_3$net_sign, 1L)  # (-) x (-) = (+)
+  expect_identical(path_1_2_3$signs, "-,-")
+  expect_gt(path_1_2_3$contribution, 0)
+})
+
+test_that("SignedPathContribution: single negative stays negative", {
+  A_pos <- matrix(0, 3, 3)
+  A_neg <- matrix(0, 3, 3)
+  A_neg[2, 1] <- 1
+  A_pos[3, 2] <- 1
+
+  paths <- SignedPathContribution(A_pos, A_neg, max_hop = 2)
+
+  # 2-hop path 1->2->3: (-) then (+) = (-)
+  path_1_2_3 <- paths[paths$path == "1->2->3", ]
+  expect_identical(nrow(path_1_2_3), 1L)
+  expect_identical(path_1_2_3$net_sign, -1L)
+})
+
+test_that("SignedPathContribution: Tumor->Treg->CD8->Tumor circuit", {
+  # Tumor(1) --(-)--> Treg(2) --(-)--> CD8(3) --(-)--> Tumor(1)
+  A_pos <- matrix(0, 3, 3)
+  A_neg <- matrix(0, 3, 3)
+  A_neg[2, 1] <- 1
+  A_neg[3, 2] <- 1
+  A_neg[1, 3] <- 1
+
+  paths <- SignedPathContribution(A_pos, A_neg, max_hop = 3)
+
+  # 3-hop: 1->2->3->1 should be (-)(-)(-) = (-)
+  circuit <- paths[paths$path == "1->2->3->1", ]
+  expect_identical(nrow(circuit), 1L)
+  expect_identical(circuit$net_sign, -1L)  # odd number of negatives
+
+  # 2-hop: 1->2->3 should be (-)(-) = (+)
+  hop2 <- paths[paths$path == "1->2->3", ]
+  expect_identical(nrow(hop2), 1L)
+  expect_identical(hop2$net_sign, 1L)
+})

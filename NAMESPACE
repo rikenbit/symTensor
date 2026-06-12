@@ -3,6 +3,8 @@
 export(HigherOrderPower)
 export(LabelPropagation)
 export(PageRank)
+export(SignedPageRank)
+export(SignedPathContribution)
 export(Symmetrize)
 export(TOPHITS)
 export(isSymmetricTensor)
